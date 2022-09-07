@@ -21,7 +21,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('/logout/', [AuthController::class, 'logout']);
 });
 
-Route::group(['middleware' => 'auth', 'prefix' => 'blogs'], function ($router) {
+Route::group(['middleware' => 'auth:api', 'prefix' => 'blogs'], function ($router) {
+    Route::get('/index/', [BlogController::class, 'index']);
     Route::post('/store/', [BlogController::class, 'store']);
     Route::patch('/{bog}/update/', [BlogController::class, 'update']);
     Route::get('/{bog}/retrieve/', [BlogController::class, 'retrieve']);

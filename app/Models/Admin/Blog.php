@@ -13,7 +13,6 @@ class Blog extends Model
         'title',
         'slug',
         'status',
-        'image',
         'created_by',
         'description'
     ];

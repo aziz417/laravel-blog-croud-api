@@ -20,8 +20,7 @@ class BlogFactory extends Factory
         return [
             'title' => $title,
             'slug' => Str::slug($title),
-            'status' => random_int(0, 1),
-            'image' => $this->faker->imageUrl(300, 400),
+            'status' => "true",
             'created_by' => 1,
             'description' => $this->faker->text(300),
         ];

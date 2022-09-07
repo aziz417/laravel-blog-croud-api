@@ -7,10 +7,9 @@ use App\Models\Admin\Blog;
 use App\Http\Requests\StoreBlogRequest;
 use App\Http\Requests\UpdateBlogRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
 
 class BlogController extends Controller
 {
@@ -21,7 +20,8 @@ class BlogController extends Controller
      */
     public function index()
     {
-        //
+        $blogs = Blog::all();
+        return response()->json(['status' => 200, 'message' => '', 'data' => $blogs]);
     }
 
     /**
@@ -45,28 +45,12 @@ class BlogController extends Controller
         DB::beginTransaction();
 
         try {
-        $image_path = "No Image";
-//        if ($request->hasFile('image')) {
-//            $image = $request->hasFile('image');
-//            $prefix = time();
-//            $size = 300;
-//            $width = 400;
-//
-//            $image_name = $prefix . '-' . $width . 'x' . $size . '-' . $image->getClientOriginalName();
-//
-//            $image_path = "uploads/blogs/$image_name";
-//
-//            $resized_image = Image::make($image)->resize($size['width'], $size['height'])->stream();
-//
-//            Storage::put($image_path, $resized_image);
-//        }
 
         $data = Blog::create([
             'title' => $request->title,
             'slug' => Str::slug($request->title),
-            'status' => $request->status,
-            'image' => $image_path,
-            'created_by' => $request->created_by,
+            'status' => $request->status === true ? "true" : "false" ,
+            'created_by' => Auth::id(),
             'description' => $request->description
         ]);
 
@@ -96,9 +80,15 @@ class BlogController extends Controller
      * @param \App\Models\Admin\Blog $blog
      * @return \Illuminate\Http\Response
      */
-    public function show(Blog $blog)
+    public function retrieve($id)
     {
-        //
+        $blog = Blog::findOrFail($id);
+
+        return response()->json([
+            'status' => 200,
+            'message' => '',
+            'data' => $blog,
+        ]);
     }
 
     /**
@@ -124,29 +114,11 @@ class BlogController extends Controller
         DB::beginTransaction();
         $blog = Blog::findOrFail($id);
         try {
-
-
-//        if ($request->hasFile('image')) {
-//            $image = $request->hasFile('image');
-//            $prefix = time();
-//            $size = 300;
-//            $width = 400;
-//
-//            $image_name = $prefix . '-' . $width . 'x' . $size . '-' . $image->getClientOriginalName();
-//
-//            $image_path = "uploads/blogs/$image_name";
-//
-//            $resized_image = Image::make($image)->resize($size['width'], $size['height'])->stream();
-//
-//            Storage::put($image_path, $resized_image);
-//        }
-            $image_path = 'fg';
             $blog->update([
                 'title' => $request->title,
                 'slug' => Str::slug($request->title),
                 'status' => $request->status,
-                'image' => $image_path,
-                'created_by' => $request->created_by,
+                'created_by' => Auth::id(),
                 'description' => $request->description
             ]);
 
@@ -176,14 +148,13 @@ class BlogController extends Controller
      * @param \App\Models\Admin\Blog $blog
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Blog $blog)
+    public function destroy($id)
     {
         DB::beginTransaction();
 
         try {
-            if (Storage::exists($blog->image)) {
-                Storage::delete($blog->image);
-            }
+            $blog = Blog::findOrFail($id);
+
             $blog->delete();
 
             DB::commit();
